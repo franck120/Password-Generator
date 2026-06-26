@@ -37,7 +37,7 @@ public class Main {
             String password = generatePasswod(passwordLength,upperCaseCharater,lowerCaseCharacter,integerCharacter,symbolCharater,randomSec);
             int score = ckeckPasswordWithZwcnbn(password);
             String passwordSafetyLevel = mapSafetyScore(score);
-            System.out.println( i + "----" + " " + password + " " + "Niveau de sécurité :" + passwordSafetyLevel);
+            System.out.println( i + "----" + " " + password + " " + "Score de robustesse : "  + score + "Niveau de sécurité :" + passwordSafetyLevel);
         }
         scanner.close();
     }
