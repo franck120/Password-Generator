@@ -76,6 +76,7 @@ Vérification :
 java -version
 mvn -version
 docker --version
+Asurer vous que docker desktop est lancé
 
 Installation du projet
 git clone URL_DU_DEPOT
