@@ -1,4 +1,5 @@
 package passwordgenerator;
+import java.io.IOException;
 import java.nio.charset.StandardCharsets; //Import nécessaire pour SecureRandom qui est une version de random plus adapté à la génération de mot de passe
 import java.security.SecureRandom;
 import java.util.ArrayList;
@@ -7,7 +8,6 @@ import java.util.List;
 import java.util.Scanner;
 
 public class Main {
-
     public static void main(String[] args) {
         SecureRandom randomSec = new SecureRandom();
         System.out.println("BIENVENUE SUR PASSWORD GENERATOR VOTRE GÉNÉRATEUR DE MOT DE PASSE");
@@ -33,19 +33,14 @@ public class Main {
             System.out.println("La longueur du mot de passe doit être au moins égale au nombre d'option sélectionnées.");
             passwordLength = getNumberUserInput(scanner,"Veuillez entrez la longueur du mot de passe : ");
         }
-        System.out.println("Longueur choisie : " + passwordLength);
-        System.out.println("Nombre demandé : " + passwordCount);
-        System.out.println("Majuscule: " + upperCaseCharater);
-        System.out.println("Minuscule: " + lowerCaseCharacter);
-        System.out.println("Nombre : " + integerCharacter);
-        System.out.println("Symbol : " + symbolCharater);
         for(int i = 1; i <= passwordCount; i++){
             String password = generatePasswod(passwordLength,upperCaseCharater,lowerCaseCharacter,integerCharacter,symbolCharater,randomSec);
-            System.out.println( i + "---" + password);
+            int score = ckeckPasswordWithZwcnbn(password);
+            String passwordSafetyLevel = mapSafetyScore(score);
+            System.out.println( i + "----" + " " + password + " " + "Niveau de sécurité :" + passwordSafetyLevel);
         }
         scanner.close();
     }
-
     // Elle évite de répéter plusieurs fois le même code de saisie.
     private static int getNumberUserInput(Scanner scanner, String message){
         while(true) { //Permet de vérifier que l'utilisateur saisisse des valeurs qui ferait planter l'application
@@ -67,10 +62,10 @@ public class Main {
         while(true){
             System.out.print(message + " (O/N) : ");
             String reponse = scanner.nextLine().trim().toLowerCase();
-            if(reponse.equals("O")){
+            if(reponse.equals("O".toLowerCase())){
                 return true;
             }
-            if(reponse.equals("N")){
+            if(reponse.equals("N".toLowerCase())){
                 return false;
             }
             System.out.println("Votre réponse est invalide");
@@ -149,15 +144,44 @@ public class Main {
     }
     //Permet de tester le mot de passe et de retourner son score
     private static int ckeckPasswordWithZwcnbn(String password) {
-        try {
-            ProcessBuilder builder = new ProcessBuilder("docker","run","--rm", "password-generator", password); //Permet de lancer la conteneur et de tester le mot de passe
-            builder.redirectErrorStream(true);
-            Process process = builder.start();
-            String result = new String(process.getInputStream().readAllBytes(), StandardCharsets.UTF_8).trim(); // Récupère la valeur retourner par le conteneur
-            process.waitFor();
-            return Integer.parseInt(result);
-        } catch(Exception e){
-            throw new RuntimeException( "Erreur lors de la communication avec  Docker", e);
+    try {
+        ProcessBuilder pb = new ProcessBuilder("docker","run","--rm","password-generator",password ); //Permet de lancer la conteneur et de tester le mot de passe
+        pb.redirectErrorStream(true);
+        Process process = pb.start();
+        String output = new String(process.getInputStream().readAllBytes(),StandardCharsets.UTF_8).trim(); // Récupère la valeur retourner par le conteneur
+        int exitCode = process.waitFor();
+        if (exitCode != 0) {
+            throw new RuntimeException("Le conteneur Docker a retourne une erreur : " + output);
         }
+        if (output.isEmpty()) {
+            throw new RuntimeException("Le conteneur Docker n'a renvoye aucune reponse.");
+        }
+        return Integer.parseInt(output);
+    } catch (IOException e) { //Permet de ne pas faire cracher l'app en cas d'erreur lié à docker
+        throw new RuntimeException("Impossible de lancer Docker. Verifie que Docker est installe et demarre.", e);
+    } catch (InterruptedException e) {
+        throw new RuntimeException("Interruption pendant l'appel Docker.", e);
+    } catch (NumberFormatException e) {
+        throw new RuntimeException("Reponse Docker invalide : " + e.getMessage(), e);
     }
 }
+    // Convertit le score Docker en texte lisible.
+    private static String mapSafetyScore(int safetyScore){
+        switch(safetyScore){
+            case 0:
+                return "Très faible";
+            case 1:
+                return "Faible";
+            case 2:
+                return "Moyen";
+            case 3:
+                return "Fort";
+            case 4:
+                return "Très fort";
+            default:
+                return "Inconnu";
+        }
+
+    }
+}
+
