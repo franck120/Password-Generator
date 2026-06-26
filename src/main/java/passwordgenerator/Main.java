@@ -1,5 +1,6 @@
 package passwordgenerator;
-import java.security.SecureRandom; //Import nécessaire pour SecureRandom qui est une version de random plus adapté à la génération de mot de passe
+import java.nio.charset.StandardCharsets; //Import nécessaire pour SecureRandom qui est une version de random plus adapté à la génération de mot de passe
+import java.security.SecureRandom;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -146,5 +147,17 @@ public class Main {
         }
         return resultat.toString();
     }
-
+    //Permet de tester le mot de passe et de retourner son score
+    private static int ckeckPasswordWithZwcnbn(String password) {
+        try {
+            ProcessBuilder builder = new ProcessBuilder("docker","run","--rm", "password-generator", password); //Permet de lancer la conteneur et de tester le mot de passe
+            builder.redirectErrorStream(true);
+            Process process = builder.start();
+            String result = new String(process.getInputStream().readAllBytes(), StandardCharsets.UTF_8).trim(); // Récupère la valeur retourner par le conteneur
+            process.waitFor();
+            return Integer.parseInt(result);
+        } catch(Exception e){
+            throw new RuntimeException( "Erreur lors de la communication avec  Docker", e);
+        }
+    }
 }
