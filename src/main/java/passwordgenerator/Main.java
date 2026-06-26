@@ -38,10 +38,10 @@ public class Main {
         System.out.println("Minuscule: " + lowerCaseCharacter);
         System.out.println("Nombre : " + integerCharacter);
         System.out.println("Symbol : " + symbolCharater);
-
-        System.out.println("Mots de passe générés : ");
-        String password = generatePasswod(passwordLength,upperCaseCharater,lowerCaseCharacter,integerCharacter,symbolCharater,randomSec);
-        System.out.println(password);
+        for(int i = 1; i <= passwordCount; i++){
+            String password = generatePasswod(passwordLength,upperCaseCharater,lowerCaseCharacter,integerCharacter,symbolCharater,randomSec);
+            System.out.println( i + "---" + password);
+        }
         scanner.close();
     }
 
@@ -146,4 +146,5 @@ public class Main {
         }
         return resultat.toString();
     }
+
 }
