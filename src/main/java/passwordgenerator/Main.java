@@ -1,8 +1,14 @@
 package passwordgenerator;
+import java.security.SecureRandom; //Import nécessaire pour SecureRandom qui est une version de random plus adapté à la génération de mot de passe
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
 import java.util.Scanner;
+
 public class Main {
 
     public static void main(String[] args) {
+        SecureRandom randomSec = new SecureRandom();
         System.out.println("BIENVENUE SUR PASSWORD GENERATOR VOTRE GÉNÉRATEUR DE MOT DE PASSE");
         Scanner scanner = new Scanner(System.in);
         int passwordCount = getNumberUserInput(scanner, "Combien de mots de passe veux-tu générer : ");
@@ -32,6 +38,10 @@ public class Main {
         System.out.println("Minuscule: " + lowerCaseCharacter);
         System.out.println("Nombre : " + integerCharacter);
         System.out.println("Symbol : " + symbolCharater);
+
+        System.out.println("Mots de passe générés : ");
+        String password = generatePasswod(passwordLength,upperCaseCharater,lowerCaseCharacter,integerCharacter,symbolCharater,randomSec);
+        System.out.println(password);
         scanner.close();
     }
 
@@ -86,5 +96,54 @@ public class Main {
         }
         return minimum;
 
+    }
+    //Permet de génère un mot de passe selon les choix de l'utilisateur.
+    private static String generatePasswod(int length,boolean upper,boolean lower,boolean digits, boolean symbols,SecureRandom randomSec) {
+        //Eléments qui seront mélangés en fonction des options afin de générer le mot de passe le plus aléatoire possible
+        String majuscules = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+        String minuscules = "abcdefghijklmnopqrstuvwxyz";
+        String chiffres = "0123456789";
+        String symboles = "!@#$%^&*()-_=+[]{};:,.?";
+        StringBuilder pool = new StringBuilder(); //Classe Java Permettant de construire une chaîne de caractère
+        List<Character> caracteres = new ArrayList<>();
+       
+       //Récupére de façon aléatoire un élément de majuscules en fonction de son index dans la chaîne
+        if(upper){
+            caracteres.add(majuscules.charAt(randomSec.nextInt(majuscules.length()))); 
+            pool.append(majuscules);
+        }
+         
+        //Récupére de façon aléatoire un élément de miniscules en fonction de son index dans la chaîne
+        if(lower){
+            caracteres.add(
+                minuscules.charAt(randomSec.nextInt(minuscules.length()))
+            );
+            pool.append(minuscules);
+        }
+        
+        //Récupére de façon aléatoire un élément de chiffres en fonction de son index dans la chaîne
+        if(digits){
+            caracteres.add(chiffres.charAt(randomSec.nextInt(chiffres.length())) );
+            pool.append(chiffres);
+        }
+        
+        //Récupére de façon aléatoire un élément de symbol en fonction de son index dans la chaîne
+        if(symbols){
+            caracteres.add(symboles.charAt(randomSec.nextInt(symboles.length())));
+            pool.append(symboles);
+        }
+
+        //Si la taille des caractères mélangés est inférieur à la longueur demandé ajouter d'autre
+        while(caracteres.size() < length){
+            caracteres.add(pool.charAt(randomSec.nextInt(pool.length())));
+        }
+        // Mélange les caractères pour éviter un ordre prévisible.
+        Collections.shuffle(caracteres, randomSec);
+
+        StringBuilder resultat = new StringBuilder();
+        for(char c : caracteres){
+            resultat.append(c);
+        }
+        return resultat.toString();
     }
 }
