@@ -12,8 +12,20 @@ public class Main {
         boolean lowerCaseCharacter = getBooleanUserInput(scanner,"Inclure les minuscules ?");
         boolean integerCharacter = getBooleanUserInput(scanner,"Inclure les chiffres ?");
         boolean symbolCharater = getBooleanUserInput(scanner, "Inclure les symboles ?");
-
-
+        //Tant qu'au moins une valeur n'est pas choisit continuer de demander
+        while(!CheckCategory(upperCaseCharater,lowerCaseCharacter,integerCharacter,symbolCharater)){
+            System.out.println("Au moins une catégorie doit être choisi");
+            upperCaseCharater = getBooleanUserInput(scanner,"Inclure les majuscules ?");
+            lowerCaseCharacter = getBooleanUserInput(scanner,"Inclure les minuscules ?");
+            integerCharacter = getBooleanUserInput(scanner,"Inclure les chiffres ?");
+            symbolCharater = getBooleanUserInput(scanner, "Inclure les symboles ?");
+        }
+        //Tant que la longueur du mot de passe sera inférieur au nombre d'options sélectionnés.Demander une nouvelle longueur
+        int selectedOptions = computeSelectedOption(upperCaseCharater,lowerCaseCharacter,integerCharacter,symbolCharater);
+        while (passwordLength < selectedOptions) { 
+            System.out.println("La longueur du mot de passe doit être au moins égale au nombre d'option sélectionnées.");
+            passwordLength = getNumberUserInput(scanner,"Veuillez entrez la longueur du mot de passe : ");
+        }
         System.out.println("Longueur choisie : " + passwordLength);
         System.out.println("Nombre demandé : " + passwordCount);
         System.out.println("Majuscule: " + upperCaseCharater);
@@ -52,5 +64,27 @@ public class Main {
             }
             System.out.println("Votre réponse est invalide");
         }
+    }
+    //Permet de vérifier que l'utiliser à choisit au moins une des quatres options proposés
+    private static boolean CheckCategory(boolean upper,boolean lower,boolean digits,boolean symbols) {
+        return upper || lower || digits || symbols;
+    }
+    //Permet de s'assurer qu'avec les options qui vont être ajoutés sur le mot de passe n’excède pas la longueur donné par l'utilisateur 
+    private static int computeSelectedOption(boolean upper,boolean lower,boolean digits,boolean symbols) {
+        int minimum = 0;
+        if(upper){
+            minimum++;
+        }
+        if(lower){
+            minimum++;
+        }
+        if(digits){
+            minimum++;
+        }
+        if(symbols){
+            minimum++;
+        }
+        return minimum;
+
     }
 }
